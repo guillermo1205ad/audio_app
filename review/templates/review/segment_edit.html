@@ -1,0 +1,168 @@
+{% load static %}
+
+<!-- Carrusel de navegación -->
+<div class="flex justify-between mb-4">
+  {% if prev_pk %}
+    <button
+      hx-get="{% url 'review:segment_edit' prev_pk %}"
+      hx-target="#detalle" hx-swap="innerHTML"
+      class="px-3 py-1 bg-gray-200 rounded">← Anterior</button>
+  {% else %}
+    <button disabled class="px-3 py-1 bg-gray-100 rounded opacity-50">← Anterior</button>
+  {% endif %}
+  {% if next_pk %}
+    <button
+      hx-get="{% url 'review:segment_edit' next_pk %}"
+      hx-target="#detalle" hx-swap="innerHTML"
+      class="px-3 py-1 bg-gray-200 rounded">Siguiente →</button>
+  {% else %}
+    <button disabled class="px-3 py-1 bg-gray-100 rounded opacity-50">Siguiente →</button>
+  {% endif %}
+</div>
+
+<!-- Contenedor con metadatos de sincronización -->
+<div id="segment-{{ s.pk }}" data-start="{{ s.start }}" data-end="{{ s.end }}">
+  <form novalidate
+        hx-post="{% url 'review:segment_edit' s.pk %}"
+        hx-trigger="submit"
+        hx-target="#detalle"
+        hx-swap="innerHTML"
+        class="p-4 border rounded space-y-4">
+    {% csrf_token %}
+
+    <!-- Inputs de tiempo -->
+    <div class="flex space-x-4">
+      <label>Start (s):
+        <input type="number" name="start" value="{{ s.start }}" step="0.01"
+               class="border rounded px-2 py-1" id="start-{{ s.pk }}">
+      </label>
+      <label>End (s):
+        <input type="number" name="end" value="{{ s.end }}" step="0.01"
+               class="border rounded px-2 py-1" id="end-{{ s.pk }}">
+      </label>
+    </div>
+
+    <!-- Reproductor inline usando la vista stream_audio -->
+    <audio controls preload="metadata" class="mb-4 w-full"
+           data-start="{{ s.start }}" data-end="{{ s.end }}">
+      <source src="{{ stream_url }}" type="audio/mp3">
+      Tu navegador no soporta audio.
+    </audio>
+
+    <!-- Transcripción enmascarada -->
+    <div>
+      <strong>Transcripción enmascarada:</strong><br>
+      {% for w in s.words %}
+        {% if w.review %}
+          <mark>&nbsp;</mark>
+        {% else %}
+          {{ w.word }}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Toggle modo texto libre -->
+    <div>
+      <label>
+        <input type="checkbox"
+               id="freeToggle-{{ s.pk }}"
+               name="use_free"
+               value="1">
+        Usar modo texto libre
+      </label>
+    </div>
+
+    <!-- Inputs de corrección -->
+    <div id="fills-container-{{ s.pk }}">
+      <strong>Transcripción:</strong><br>
+      {% for w in s.words %}
+        {% if w.review %}
+          <input type="text"
+                 name="fill_{{ forloop.counter0 }}"
+                 placeholder="Corregir"
+                 class="border rounded px-1 py-0.5"
+                 id="fill-{{ s.pk }}-{{ forloop.counter0 }}">
+        {% else %}
+          <span>{{ w.word }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Textarea libre (oculto por defecto) -->
+    <div id="free-container-{{ s.pk }}" style="display:none;">
+      <textarea name="free_text"
+                rows="4"
+                class="w-full border rounded"
+                id="free-{{ s.pk }}"
+                placeholder="Escribe la transcripción completa..."></textarea>
+    </div>
+
+    <!-- Marcar revisado -->
+    <div>
+      <label>
+        <input type="checkbox"
+               id="revToggle-{{ s.pk }}"
+               name="revisado"
+               disabled>
+        Marcar como revisado
+      </label>
+    </div>
+
+    <!-- Guardar cambios -->
+    <button type="submit"
+            id="save-btn-{{ s.pk }}"
+            class="px-4 py-2 bg-blue-600 text-white rounded"
+            disabled>
+      Guardar cambios
+    </button>
+  </form>
+</div>
+
+<!-- Script de toggle, validación y control de revisado -->
+<script>
+(function(){
+  const pk = '{{ s.pk }}';
+  const toggle = document.getElementById('freeToggle-' + pk);
+  const fills  = document.getElementById('fills-container-' + pk);
+  const free   = document.getElementById('free-container-' + pk);
+  const savBtn = document.getElementById('save-btn-' + pk);
+  const revChk = document.getElementById('revToggle-' + pk);
+
+  // Inputs de fills
+  const fillInputs = Array.from(fills.querySelectorAll('input'));
+  const freeInput  = free.querySelector('textarea');
+
+  function validarCampos() {
+    // Comprueba si modo libre o inputs individuales
+    let ok;
+    if (toggle.checked) {
+      ok = freeInput.value.trim().length > 0;
+    } else {
+      ok = fillInputs.every(i => i.value.trim().length > 0);
+    }
+    // Habilita/deshabilita checkbox de revisado
+    revChk.disabled = !ok;
+    // Si se deshabilita, desmarca revisado
+    if (!ok) revChk.checked = false;
+    actualizarBoton();
+  }
+
+  function actualizarBoton() {
+    // Botón guardar activo sólo si revisado está marcado y campos OK
+    savBtn.disabled = !(revChk.checked && !revChk.disabled);
+  }
+
+  // Listeners
+  toggle.addEventListener('change', () => {
+    fills.style.display = toggle.checked ? 'none' : 'block';
+    free.style.display  = toggle.checked ? 'block' : 'none';
+    validarCampos();
+  });
+  fillInputs.forEach(i => i.addEventListener('input', validarCampos));
+  freeInput.addEventListener('input', validarCampos);
+  revChk.addEventListener('change', actualizarBoton);
+
+  // Inicializar estado
+  validarCampos();
+})();
+</script>

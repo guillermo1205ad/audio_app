@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block detalle %}
+  <h1 class="text-4xl font-bold mb-4">Segmentos pendientes de revisión</h1>
+
+  <div
+    hx-get="{% url 'review:segment_edit' pendientes.0.pk %}"
+    hx-trigger="load"
+    hx-target="#detalle"
+    hx-swap="innerHTML"
+    class="mt-6">
+  </div>
+{% endblock %}

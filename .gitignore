@@ -1,14 +1,83 @@
-# Entornos virtuales y configuraciones locales
+# =========================================================
+# 🚫 IGNORAR ARCHIVOS Y CARPETAS SENSIBLES
+# =========================================================
+
+# Entornos virtuales
+.venv/
 venv/
-.env/
+
+# Variables de entorno reales (mantener .env.example)
+.env
+!.env.example
+
+# Archivos compilados o temporales de Python
 __pycache__/
 *.pyc
 *.pyo
-*.sqlite3
+*.pyd
 
-# Archivos de sistema
+# Archivos de logs
+*.log
+*.out
+*.err
+
+# Archivos temporales del sistema
 .DS_Store
 Thumbs.db
 
-# Logs y temporales
-*.log
+# Archivos creados por editores
+.vscode/
+.idea/
+
+# =========================================================
+# 🧾 DJANGO
+# =========================================================
+
+# Archivos estáticos generados automáticamente
+staticfiles/
+staticfiles_build/
+static_root/
+
+# Archivos media generados (audios, versiones, etc.)
+media/
+media/audios/
+media/versiones/
+
+# Archivos de migración cacheados
+*/migrations/__pycache__/
+
+# =========================================================
+# 🧩 UV / DEPENDENCIAS / BUILD
+# =========================================================
+
+uv.lock
+*.whl
+*.egg
+*.egg-info/
+*.tar.gz
+dist/
+build/
+pip-wheel-metadata/
+
+# =========================================================
+# 🎧 AUDIO Y PIPELINE
+# =========================================================
+
+# Carpetas externas no versionadas
+AUDIOS/
+
+# Archivos intermedios o derivados del pipeline
+pipeline.log
+*_web_ready.json
+*_timestamps.txt
+*_timestamps.csv
+*_timestamps_distribution-word.csv
+
+# =========================================================
+# 💻 SISTEMAS Y BACKUPS
+# =========================================================
+
+*.bak
+*.tmp
+*.swp
+*.swo

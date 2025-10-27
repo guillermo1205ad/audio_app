@@ -39,9 +39,11 @@ staticfiles_build/
 static_root/
 
 # Archivos media generados (audios, versiones, etc.)
-media/
-media/audios/
-media/versiones/
+# Subimos solo la estructura vacía (usando archivos .keep)
+media/audios/*
+!media/audios/.keep
+media/versiones/*
+!media/versiones/.keep
 
 # Archivos de migración cacheados
 */migrations/__pycache__/

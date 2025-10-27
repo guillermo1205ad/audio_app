@@ -49,10 +49,9 @@ Una estructura funcional típica sería la siguiente:
 ```bash
 /home/gperaltag/mi_entorno/
 ├── audio_app/            # código del proyecto Django
-├── AUDIOS/               # audios originales y JSON de entrada
+├── AUDIOS/               
 │   ├── pruebas/          # audios y JSON base (.mp3 + .json)
 │   └── _new_web_ready/   # archivos finales procesados listos para importar
-├── audios/               # audios gestionados por Django (MEDIA_ROOT)
 └── large-v3/             # modelo Whisper descargado desde Hugging Face
 ```
 
@@ -65,7 +64,9 @@ Una estructura funcional típica sería la siguiente:
 > ```
 >
 > Estas variables son utilizadas por los scripts del pipeline y por Django para ubicar los recursos externos sin depender de rutas fijas.  
-> Puedes agregarlas a tu `~/.bashrc` o exportarlas antes de ejecutar los scripts.
+> Puedes agregarlas a tu `~/.bashrc` o exportarlas antes de ejecutar los scripts asi:
+> echo -e '\n# 🔊 Variables de entorno para Audio App\nexport AUDIO_APP_PATH=/ruta/a/audio_app\nexport AUDIOS_PATH=/ruta/a/AUDIOS\nexport MEDIA_PATH=/ruta/a/audios\nexport WHISPER_PATH=/ruta/a/large-v3' >> ~/.bashrc && source ~/.bashrc
+> Verificar: echo $AUDIO_APP_PATH debería imprimir: /ruta/a/audio_app
 
 ---
 
@@ -98,10 +99,10 @@ Edita `.env` con tus valores personalizados.
 Ejemplo:
 
 ```bash
-DJANGO_SECRET_KEY="clave_secreta"
+DJANGO_SECRET_KEY="key"
 DB_NAME="plataforma_revision"
-DB_USER="audio_user"
-DB_PASSWORD="audios_2025"
+DB_USER="user"
+DB_PASSWORD="key"
 EMAIL_HOST_USER="tu_correo@gmail.com"
 EMAIL_HOST_PASSWORD="clave_app_gmail"
 MEDIA_ROOT="/ruta/a/audio_app/media"
@@ -166,6 +167,8 @@ export WHISPER_PATH=/ruta/a/large-v3
 ---
 
 ## 🎬 Pipeline de procesamiento de audio
+
+Antes de ejecutar los códigos ejecuta source ~/.bashrc
 
 Primero ejecutar `codes/transcribir.py`. A partir de acá, el flujo completo se ejecuta desde `codes/pipeline_audio.py`, que automatiza:
 

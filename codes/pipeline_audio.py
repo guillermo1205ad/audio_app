@@ -9,33 +9,33 @@ import os
 import subprocess
 from datetime import datetime
 
-# ================================
+# ======================================================
 # CONFIGURACIÓN PRINCIPAL
-# ================================
+# ======================================================
 
-# 📁 Directorio base de audios (configurable por entorno)
-BASE_DIR = os.getenv("AUDIOS_BASE_DIR", os.path.join(os.getcwd(), "AUDIOS"))
+# 📁 Base global de audios (siempre fuera del repo)
+BASE_DIR = os.getenv("AUDIOS_BASE_DIR", "/ruta/a/AUDIOS")
 
 # 📂 Subcarpetas derivadas
 PRUEBAS_DIR = os.getenv("AUDIOS_PATH", os.path.join(BASE_DIR, "pruebas"))
 NEW_WEB_READY_DIR = os.getenv("AUDIOS_OUTPUT_PATH", os.path.join(BASE_DIR, "_new_web_ready"))
 
-# 🧾 Log del pipeline
+# 🧾 Log del pipeline (dentro de la carpeta pruebas)
 LOG_FILE = os.path.join(PRUEBAS_DIR, "pipeline.log")
 
-# ⚙️ Scripts del pipeline (usando ruta dinámica basada en este archivo)
-CODES_DIR = os.path.join(os.path.dirname(__file__))
+# ⚙️ Directorio donde están los scripts (este archivo)
+CODES_DIR = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = {
     "agregar_audio": os.path.join(CODES_DIR, "agregar_audio_a_json.py"),
     "metricas": os.path.join(CODES_DIR, "metricas_correcciones.py"),
     "collect": os.path.join(CODES_DIR, "collect_new_web_ready.py"),
 }
 
-# ================================
+# ======================================================
 # FUNCIONES AUXILIARES
-# ================================
+# ======================================================
 def log(msg):
-    """Escribe una línea en el log y la muestra en pantalla."""
+    """Escribe mensaje en log y en consola."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     line = f"[{timestamp}] {msg}"
     print(line)
@@ -59,22 +59,24 @@ def run_step(name, script_path):
 
 
 def ensure_dir(path):
+    """Crea carpeta si no existe."""
     if not os.path.exists(path):
         os.makedirs(path)
         log(f"📂 Carpeta creada: {path}")
 
 
-# ================================
-# EJECUCIÓN DEL PIPELINE
-# ================================
+# ======================================================
+# EJECUCIÓN PRINCIPAL
+# ======================================================
 if __name__ == "__main__":
     print("🎧 Iniciando pipeline de procesamiento de audios...\n")
 
-    # Crea carpetas necesarias
+    # Crear carpetas necesarias en la ruta global
+    ensure_dir(BASE_DIR)
     ensure_dir(PRUEBAS_DIR)
     ensure_dir(NEW_WEB_READY_DIR)
 
-    # Inicia log
+    # Iniciar log
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write("\n" + "=" * 60 + "\n")
         f.write(f"🚀 EJECUCIÓN PIPELINE: {datetime.now()}\n")
